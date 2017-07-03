@@ -2,8 +2,11 @@ import discord
 from discord.ext import commands
 import asyncio
 import tokenfile #where we store my bots token code so it isn't on public display
+import stringfile 
 
 client = discord.Client()
+
+#requires pre-existing channel, and a role named "<voice_channel_name>-textchannel" eg "general-textchannel"
 
 @client.event
 async def on_ready():
@@ -57,12 +60,12 @@ async def on_voice_state_update(before, after):
             except:
                 pass
             
-            #we opt to copy, change and replace the users rolelist instead of manually
-            #adding and removing roles because, for whatever reason, you can't both
-            #client.add_role and client.remove_role in the same function, it only do one.
+    #we opt to copy, change and replace the users rolelist instead of manually
+    #adding and removing roles because, for whatever reason, you can't both
+    #client.add_role and client.remove_role in the same function, it only does one.
         
 
-#simple check to see if a voice channels text channel role exists, if not it creates it
+#simple check to see if a voice channels text channel role exists
 async def check_role_exists(desired_server, role_name):
     try:
         role = discord.utils.get(desired_server.roles, name=role_name)
@@ -70,6 +73,21 @@ async def check_role_exists(desired_server, role_name):
             return False
         else:
             return True
+    except:
+        pass
+        
+        
+@client.event
+async def on_message(message):
+    try:
+        if message.channel.is_private and message.author != client.user:
+            msg = message.content.lower()
+        
+            if msg == '!help':
+                await client.send_message(message.channel, '```{}\n{}\n\n{}```'.format(stringfile.generic_help_response, stringfile.uses_help_response, stringfile.help_commands))
+                
+            elif msg == '!help textchannel':
+                await client.send_message(message.channel, '```{}```'.format(stringfile.textchannel_help_response))
     except:
         pass
         
