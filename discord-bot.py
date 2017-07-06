@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
 import asyncio
-import tokenfile #where we store my bots token code so it isn't on public display
+import tokenfile #where we store my bots token code so it isn't on public display at github
 import stringfile 
 
-client = discord.Client()
-
 #requires pre-existing channel, and a role named "<voice_channel_name>-textchannel" eg "general-textchannel"
+
+client = discord.Client()
 
 @client.event
 async def on_ready():
@@ -31,48 +31,48 @@ async def on_voice_state_update(before, after):
             role_list = before.roles #make a list of the users old roles
             value_changed = False
             
-            try:
-                #add new role to user
-                if not after.voice.voice_channel is None:
-                    rolename = after.voice.voice_channel.name + '-textchannel' #the role we will create for the channel
-                    role = discord.utils.get(before.server.roles, name=rolename)
-                    if(not role is None):
-                        role_list.append(role)
-                        value_changed = True
-            except:
-                pass
-            
-            try:
-                #remove old role from user, if it exists
-                if not before.voice.voice_channel is None:
-                    rolename = before.voice.voice_channel.name + '-textchannel' #the role we will create for the channel
-                    role = discord.utils.get(before.server.roles, name=rolename)
-                    if role in role_list:
-                        role_list.remove(role)
-                    
+        try:
+            #add new role to user
+            if not after.voice.voice_channel is None:
+                role = await try_retrieve_role(after.server, after.voice.voice_channel)
+                if(not role is None):
+                    role_list.append(role)
                     value_changed = True
-            except:
-                pass
+        except:
+            pass
+        
+        try:
+            #remove old role from user, if it exists
+            if not before.voice.voice_channel is None:
+                role = await try_retrieve_role(before.server, before.voice.voice_channel)
+                if role in role_list:
+                    role_list.remove(role)
                 
-            try:
-                if value_changed == True:
-                    await client.replace_roles(after, *role_list)
-            except:
-                pass
+                value_changed = True
+        except:
+            pass
+                
+        try:
+            if value_changed == True:
+                await client.replace_roles(after, *role_list)
+        except:
+            pass
             
     #we opt to copy, change and replace the users rolelist instead of manually
     #adding and removing roles because, for whatever reason, you can't both
     #client.add_role and client.remove_role in the same function, it only does one.
         
 
-#simple check to see if a voice channels text channel role exists
-async def check_role_exists(desired_server, role_name):
+#retrieves the role for the voice channels textchannel
+async def try_retrieve_role(desired_server, desired_channel):
     try:
-        role = discord.utils.get(desired_server.roles, name=role_name)
-        if role == None:
-            return False
-        else:
-            return True
+        if desired_channel.type == discord.ChannelType.voice:
+            rolename = desired_channel.name + '-textchannel' #the role we look for 
+            role = discord.utils.get(desired_server.roles, name=rolename)
+            if not role == None:
+                return role
+            else:
+                return None
     except:
         pass
         
