@@ -4,7 +4,7 @@ import asyncio
 import tokenfile #where we store my bots token code so it isn't on public display at github
 import stringfile 
 
-#requires pre-existing channel, and a role named "<voice_channel_name>-textchannel" eg "general-textchannel"
+#requires pre-existing channel (same name as voice channel), and a role named "<voice_channel_name>-textchannel" eg "general-textchannel" role
 
 client = discord.Client()
 
@@ -48,6 +48,7 @@ async def on_voice_state_update(before, after):
                 if role in role_list:
                     role_list.remove(role)
                 
+                await try_purge_channel(before.server, before.voice.voice_channel)
                 value_changed = True
         except:
             pass
@@ -76,6 +77,29 @@ async def try_retrieve_role(desired_server, desired_channel):
     except:
         pass
         
+#retrieves the corresponding textchannel for the desired voice channel
+async def try_retrieve_textchannel(desired_server, voice_channel):
+    try:
+        if voice_channel.type == discord.ChannelType.voice:
+            textchannel_name = voice_channel.name #the role we look for
+            textchannel_name = textchannel_name.replace(' ', '-')
+            channel = discord.utils.get(desired_server.channels, name=textchannel_name, type=discord.ChannelType.text)
+            if not channel == None:
+                return channel
+            else:
+                return None
+    except:
+        pass
+
+#check if the voice channel is empty. if it is then purge its text channel of text.        
+async def try_purge_channel(desired_server, voice_channel):
+    try:
+        if voice_channel.type == discord.ChannelType.voice:
+            if not voice_channel.voice_members:
+                textchannel = await try_retrieve_textchannel(desired_server, voice_channel)
+                await client.purge_from(textchannel, limit=500, check=None)
+    except:
+        pass
         
 @client.event
 async def on_message(message):
