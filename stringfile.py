@@ -7,4 +7,5 @@ help_commands = 'For more detail: "!help textchannel"'
 textchannel_help_response = ('In order to add a text channel to a voice channel, create a text channel (same name as voice; hyphens instead of spaces), then create '
                              'a role of the same name as the voice channel, then suffix it with "-textchannel". '
                              '\n\nIf you wish for the bot to purge text channels of all text when their corresponding voice channel is empty, simply give the bot access to the channel. (Give it the role you create)'
+                             '\nNOTE: If you wish to use the purge functionality, the channel (voice and text) may not have emotes in them, only alphanumeric.'
                              '\n\nExample setup: voice channel named "General Voice". Text channel named "General-Voice". Role named "General Voice-textchannel". Make it so only that role sees the text channel.')

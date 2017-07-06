@@ -68,7 +68,7 @@ async def on_voice_state_update(before, after):
 async def try_retrieve_role(desired_server, desired_channel):
     try:
         if desired_channel.type == discord.ChannelType.voice:
-            rolename = desired_channel.name + '-textchannel' #the role we look for 
+            rolename = desired_channel.name.lower() + '-textchannel' #the role we look for 
             role = discord.utils.get(desired_server.roles, name=rolename)
             if not role == None:
                 return role
@@ -83,7 +83,7 @@ async def try_retrieve_textchannel(desired_server, voice_channel):
         if voice_channel.type == discord.ChannelType.voice:
             textchannel_name = voice_channel.name #the role we look for
             textchannel_name = textchannel_name.replace(' ', '-')
-            channel = discord.utils.get(desired_server.channels, name=textchannel_name, type=discord.ChannelType.text)
+            channel = discord.utils.get(desired_server.channels, name=textchannel_name.lower(), type=discord.ChannelType.text)
             if not channel == None:
                 return channel
             else:
